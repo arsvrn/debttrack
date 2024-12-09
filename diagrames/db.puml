@@ -1,0 +1,54 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE users {
+    +Long id
+    +String email
+    +String passwordHash
+    +String name
+    +Role role
+    +boolean enabled
+    +boolean notificationsEnabled
+}
+
+RECTANGLE groups {
+    +Long id
+    +String name
+    +User admin
+}
+
+RECTANGLE group_users {
+    +Long id
+    +Group group
+    +User user
+}
+
+RECTANGLE debts {
+    +Long id
+    +User creditor
+    +User borrower
+    +Double amount
+    +Double interestRate
+    +LocalDate dueDate
+    +String note
+    +DebtStatus status
+    +Double totalAmount
+    +Double penaltyAmount
+}
+
+RECTANGLE notifications {
+    +Long id
+    +User user
+    +String message
+    +NotificationStatus status
+    +LocalDateTime sentAt
+}
+
+users "1" -- "0..*" groups : "admin"
+users "1" -- "0..*" group_users : "user"
+groups "1" -- "0..*" group_users : "group"
+users "1" -- "0..*" debts : "creditor"
+users "1" -- "0..*" debts : "borrower"
+users "1" -- "0..*" notifications : "user"
+
+@enduml

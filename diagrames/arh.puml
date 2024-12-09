@@ -1,0 +1,60 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor User as user
+
+' ==== Клиентская часть ====
+user --> "REST API: HTTP"
+
+component "Frontend" as frontend {
+    [Web Application]
+    [Mobile Application]
+}
+
+user --> frontend : Использует
+
+' ==== Серверная часть ====
+component "Backend Service" as backend {
+    [AuthController]
+    [DebtController]
+    [GroupController]
+    [NotificationController]
+}
+
+frontend --> backend : REST API запросы
+
+' ==== Очереди и события ====
+queue "RabbitMQ" as rabbitmq
+backend --> rabbitmq : Публикация событий (создание уведомлений, расчет штрафов)
+
+component "Notification Service" as notification_service {
+    [RabbitListener]
+    [EmailSender]
+}
+rabbitmq --> notification_service : Уведомления обрабатываются
+
+' ==== База данных ====
+database "PostgreSQL" as db
+backend --> db : CRUD операции
+
+db -[hidden]--> backend : Схема базы данных
+
+' ==== Внешние сервисы ====
+component "External Services" as external_services {
+    [SMTP Server (Email)]
+    [Push Notification Service]
+}
+notification_service --> external_services : Отправка email и push-уведомлений
+
+' ==== Пользовательские операции ====
+cloud "Пользовательские операции" as operations {
+    [Регистрация и аутентификация]
+    [Добавление долгов]
+    [Уведомления о сроках]
+    [Распределение долгов]
+}
+
+user --> operations : Взаимодействует через интерфейс
+operations --> frontend : Отображение результатов
+@enduml

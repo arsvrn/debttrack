@@ -1,0 +1,209 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE User {
+  +Long id
+  +String email
+  +String name
+  +String passwordHash
+  +Role role
+  +boolean isNotificationsEnabled
+}
+
+RECTANGLE Group {
+  +Long id
+  +String name
+  +User admin
+}
+
+RECTANGLE GroupUser {
+  +Long id
+  +Group group
+  +User user
+}
+
+RECTANGLE Debt {
+  +Long id
+  +User creditor
+  +User borrower
+  +Double amount
+  +Double interestRate
+  +LocalDate dueDate
+  +DebtStatus status
+  +Double totalAmount
+  +Double penaltyAmount
+}
+
+RECTANGLE Notification {
+  +Long id
+  +User user
+  +String message
+  +NotificationStatus status
+  +LocalDateTime sentAt
+}
+
+RECTANGLE DebtRequest {
+  +Long creditorId
+  +Long borrowerId
+  +Double amount
+  +Double interestRate
+  +LocalDate dueDate
+  +String note
+  +Double penaltyAmount
+}
+
+RECTANGLE AuthController {
+  +register(String email, String password, String name): ResponseEntity<?>
+  +confirmRegistration(String token): ResponseEntity<?>
+}
+
+RECTANGLE DebtController {
+  +addDebt(DebtRequest request): ResponseEntity<?>
+  +updateDebt(Long debtId, DebtRequest request): ResponseEntity<?>
+  +deleteDebt(Long debtId): ResponseEntity<?>
+  +getDebtsForCreditor(Long creditorId): ResponseEntity<?>
+  +getDebtsForBorrower(Long borrowerId): ResponseEntity<?>
+  +calculateDebt(Long debtId): ResponseEntity<?>
+  +closeDebt(Long debtId): ResponseEntity<?>
+}
+
+RECTANGLE GroupController {
+  +createGroup(String name, Long adminId): ResponseEntity<?>
+  +addMember(Long groupId, Long userId): ResponseEntity<?>
+  +removeMember(Long groupId, Long userId): ResponseEntity<?>
+  +getMembers(Long groupId): ResponseEntity<?>
+}
+
+RECTANGLE DebtSharingController {
+  +distributeDebt(Long groupId, Double totalAmount, Double interestRate, LocalDate dueDate): ResponseEntity<?>
+  +distributeDebtByPercentage(Long groupId, Map<Long, Double> userPercentages, Double totalAmount, Double interestRate, LocalDate dueDate): ResponseEntity<?>
+}
+
+RECTANGLE UserController {
+  +register(String email, String password, String name): ResponseEntity<?>
+  +confirmRegistration(String token): ResponseEntity<?>
+  +updateProfile(Long userId, String name, String email): ResponseEntity<?>
+  +updateNotificationSettings(Long userId, boolean enableNotifications): ResponseEntity<?>
+}
+
+RECTANGLE UserService {
+  +register(String email, String password, String name): User
+  +confirmRegistration(String token): void
+  +updateProfile(Long userId, String name, String email): void
+  +updateNotificationSettings(Long userId, boolean enableNotifications): void
+}
+
+RECTANGLE DebtService {
+  +addDebt(DebtRequest request): Debt
+  +updateDebt(Long debtId, DebtRequest request): Debt
+  +deleteDebt(Long debtId): void
+  +getDebtsForCreditor(Long creditorId): List<Debt>
+  +getDebtsForBorrower(Long borrowerId): List<Debt>
+  +calculateDebtTotals(Long debtId): void
+  +markAsPaid(Long debtId): void
+}
+
+RECTANGLE GroupService {
+  +createGroup(String name, Long adminId): Group
+  +addUserToGroup(Long groupId, Long userId): void
+  +removeUserFromGroup(Long groupId, Long userId): void
+  +getGroupMembers(Long groupId): List<User>
+}
+
+RECTANGLE DebtSharingService {
+  +distributeDebt(Long groupId, Double totalAmount, Double interestRate, LocalDate dueDate): void
+  +distributeDebtByPercentage(Long groupId, Map<Long, Double> userPercentages, Double totalAmount, Double interestRate, LocalDate dueDate): void
+}
+
+RECTANGLE NotificationService {
+  +sendNotification(Notification notification): void
+  +sendPendingNotifications(): void
+}
+
+RECTANGLE NotificationProducer {
+  +sendToQueue(Notification notification): void
+}
+
+RECTANGLE NotificationConsumer {
+  +processNotification(Long notificationId): void
+}
+
+RECTANGLE EmailService {
+  +sendConfirmationEmail(String to, String token): void
+}
+
+RECTANGLE DebtCalculator {
+  +calculateTotalAmount(Double amount, Double interestRate): Double
+  +calculatePenalty(Double amount, long overdueDays, Double penaltyRatePerDay): Double
+}
+
+RECTANGLE ValidationUtils {
+  +validateDebtRequest(DebtRequest request): void
+}
+
+RECTANGLE SecurityConfig {
+  +securityFilterChain(HttpSecurity http): SecurityFilterChain
+  +passwordEncoder(): PasswordEncoder
+  +authenticationManager(AuthenticationConfiguration authenticationConfiguration): AuthenticationManager
+  +jwtAuthenticationFilter(): JwtAuthenticationFilter
+}
+
+RECTANGLE JwtAuthenticationFilter {
+  +doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain): void
+  +getEmailFromJWT(String token): String
+  +isTokenValid(String token, UserDetails userDetails): boolean
+  +isTokenExpired(String token): boolean
+}
+
+RECTANGLE RabbitMQConfig {
+  +QUEUE_NAME: String
+}
+
+RECTANGLE AuthService {
+  +setAuthenticationManager(AuthenticationManager authenticationManager): void
+  +register(String email, String password, String name): User
+  +confirmRegistration(String token): void
+}
+
+RECTANGLE UserRepository {
+  +findByEmail(String email): Optional<User>
+}
+
+RECTANGLE GroupRepository {
+  +findByAdmin(User admin): List<Group>
+}
+
+RECTANGLE GroupUserRepository {
+  +findByGroup(Group group): List<GroupUser>
+}
+
+RECTANGLE DebtRepository {
+  +findByCreditor(User creditor): List<Debt>
+  +findByBorrower(User borrower): List<Debt>
+}
+
+RECTANGLE NotificationRepository {
+  +findByStatus(NotificationStatus status): List<Notification>
+}
+
+UserRepository --> AuthService
+UserRepository --> UserService
+GroupRepository --> GroupService
+GroupUserRepository --> GroupService
+DebtRepository --> DebtService
+NotificationRepository --> NotificationService
+EmailService --> UserService
+DebtCalculator --> DebtService
+ValidationUtils --> DebtService
+SecurityConfig --> JwtAuthenticationFilter
+RabbitMQConfig --> NotificationProducer
+AuthService --> JwtAuthenticationFilter
+UserDetailsService --> JwtAuthenticationFilter
+
+AuthController --> UserService
+DebtController --> DebtService
+GroupController --> GroupService
+DebtSharingController --> DebtSharingService
+UserController --> UserService
+
+@enduml

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - include:
+      file: tables/user.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/debt.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/group.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/groupUser.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/notification.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/confirmationTokens.yaml
+      relativeToChangelogFile: true

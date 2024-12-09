@@ -1,0 +1,129 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' ==== User Class ====
+class User {
+  Long id
+  String email
+  String passwordHash
+  String name
+  Role role
+  boolean notificationsEnabled
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+' ==== Debt Class ====
+class Debt {
+  Long id
+  User creditor
+  User borrower
+  Double amount
+  Double interestRate
+  LocalDate dueDate
+  String note
+  DebtStatus status
+  Double totalAmount
+  Double penaltyAmount
+}
+
+enum DebtStatus {
+  ACTIVE
+  CLOSED
+}
+
+' ==== Group Class ====
+class Group {
+  Long id
+  String name
+  User admin
+}
+
+class GroupUser {
+  Long id
+  Group group
+  User user
+}
+
+' ==== Notification Class ====
+class Notification {
+  Long id
+  User user
+  String message
+  NotificationStatus status
+  LocalDateTime sentAt
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+}
+
+' ==== Repositories ====
+interface UserRepository
+interface DebtRepository
+interface GroupRepository
+interface GroupUserRepository
+interface NotificationRepository
+
+' ==== Services ====
+class UserService {
+  +User register(String email, String password, String name)
+  +Optional<User> findByEmail(String email)
+  +void updateProfile(Long userId, String name, String email)
+  +void updateNotificationSettings(Long userId, boolean enableNotifications)
+}
+
+class DebtService {
+  +Debt addDebt(DebtRequest request)
+  +Debt updateDebt(Long debtId, DebtRequest request)
+  +void deleteDebt(Long debtId)
+  +void calculateDebtTotals(Long debtId, Double penaltyRatePerDay)
+  +void markAsPaid(Long debtId)
+}
+
+class DebtCalculator {
+  +Double calculateTotalAmount(Double amount, Double interestRate)
+  +Double calculatePenalty(Double amount, long overdueDays, Double penaltyRatePerDay)
+}
+
+class NotificationService {
+  +void sendNotification(Notification notification)
+  +void sendPendingNotifications()
+}
+
+class GroupService {
+  +Group createGroup(String name, Long adminId)
+  +void addUserToGroup(Long groupId, Long userId)
+  +void removeUserFromGroup(Long groupId, Long userId)
+  +List<User> getGroupMembers(Long groupId)
+}
+
+class DebtSharingService {
+  +void distributeDebt(Long groupId, Double totalAmount, Double interestRate, LocalDate dueDate)
+  +void distributeDebtByPercentage(Long groupId, Map<Long, Double> userPercentages, Double totalAmount, Double interestRate, LocalDate dueDate)
+}
+
+' ==== Relationships ====
+User --> Debt : "borrower, creditor"
+Group --> User : "admin"
+Group --> GroupUser : "1 to many"
+GroupUser --> User : "user"
+GroupUser --> Group : "group"
+Debt --> User : "borrower, creditor"
+Notification --> User : "user"
+
+UserService --> UserRepository
+DebtService --> DebtRepository
+DebtService --> DebtCalculator
+NotificationService --> NotificationRepository
+GroupService --> GroupRepository
+GroupService --> GroupUserRepository
+GroupService --> UserRepository
+DebtSharingService --> DebtRepository
+DebtSharingService --> GroupService
+
+@enduml

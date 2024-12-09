@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: group-001
+      author: aashatalov
+      dbms: postgresql
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            splitStatements: false
+            path: scripts/group.sql
+      rollback:
