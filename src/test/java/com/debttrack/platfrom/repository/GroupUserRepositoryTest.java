@@ -37,21 +37,18 @@ public class GroupUserRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        // Создание и сохранение администратора
-        admin = new User();
+       admin = new User();
         admin.setEmail("admin@example.com");
         admin.setName("Admin");
         admin.setPasswordHash("hashed_password");
         admin.setRole(com.debttrack.platfrom.enums.Role.ADMIN);
         admin = userRepository.save(admin);
 
-        // Создание и сохранение группы
-        group = new Group();
+       group = new Group();
         group.setName("Test Group");
-        group.setAdmin(admin); // Установка администратора для группы
+        group.setAdmin(admin);
         group = groupRepository.save(group);
 
-        // Создание и сохранение пользователей
         user1 = new User();
         user1.setEmail("user1@example.com");
         user1.setName("User 1");
@@ -66,8 +63,7 @@ public class GroupUserRepositoryTest {
         user2.setRole(com.debttrack.platfrom.enums.Role.USER);
         user2 = userRepository.save(user2);
 
-        // Создание и сохранение связей группы и пользователей
-        GroupUser groupUser1 = new GroupUser();
+         GroupUser groupUser1 = new GroupUser();
         groupUser1.setGroup(group);
         groupUser1.setUser(user1);
         entityManager.persist(groupUser1);
@@ -98,7 +94,7 @@ public class GroupUserRepositoryTest {
 
         Group newGroup = new Group();
         newGroup.setName("New Group");
-        newGroup.setAdmin(newAdmin); // Установка администратора для новой группы
+        newGroup.setAdmin(newAdmin);
         newGroup = groupRepository.save(newGroup);
 
         List<GroupUser> groupUsers = groupUserRepository.findByGroup(newGroup);

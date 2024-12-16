@@ -32,7 +32,6 @@ public class NotificationRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        // Создание и сохранение пользователя
         user = new User();
         user.setEmail("user@example.com");
         user.setName("User");
@@ -40,8 +39,7 @@ public class NotificationRepositoryTest {
         user.setRole(com.debttrack.platfrom.enums.Role.USER);
         user = userRepository.save(user);
 
-        // Создание и сохранение уведомлений
-        Notification notification1 = new Notification();
+         Notification notification1 = new Notification();
         notification1.setUser(user);
         notification1.setMessage("Notification 1");
         notification1.setStatus(NotificationStatus.PENDING);

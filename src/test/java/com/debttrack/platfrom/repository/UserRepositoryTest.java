@@ -27,7 +27,6 @@ public class UserRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        // Создание и сохранение пользователя
         user = new User();
         user.setEmail("test@example.com");
         user.setName("Test User");

@@ -4,13 +4,11 @@ import com.debttrack.platfrom.enums.Role;
 import com.debttrack.platfrom.model.User;
 import com.debttrack.platfrom.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -25,11 +23,12 @@ public class UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already in use");
         }
-        User user = new User();
-        user.setEmail(email);
-        user.setPasswordHash(passwordEncoder.encode(password));
-        user.setName(name);
-        user.setRole(Role.USER);
+        User user = User.builder()
+                .email(email)
+                .passwordHash(passwordEncoder.encode(password))
+                .name(name)
+                .role(Role.USER)
+                .build();
         userRepository.save(user);
         return user;
     }

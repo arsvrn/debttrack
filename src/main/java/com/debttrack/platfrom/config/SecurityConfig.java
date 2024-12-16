@@ -32,24 +32,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        // Открытый доступ для Swagger
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        // Открытые эндпоинты для аутентификации/регистрации
                         .requestMatchers("/confirm**", "/login**", "/register**", "/auth/**").permitAll()
-                        // Доступ для администратора
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        // Остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Добавляем JWT-фильтр
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+       http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -18,85 +18,53 @@ public class DebtController {
 
     @PostMapping
     public ResponseEntity<?> addDebt(@RequestBody DebtRequest request) {
-        try {
-            Debt debt = debtService.addDebt(request);
-            return new ResponseEntity<>(debt, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid debt request: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to add debt: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Debt debt = debtService.addDebt(request);
+        return new ResponseEntity<>(debt, HttpStatus.CREATED);
     }
 
     @PutMapping("/{debtId}")
     public ResponseEntity<?> updateDebt(@PathVariable Long debtId, @RequestBody DebtRequest request) {
-        try {
-            Debt debt = debtService.updateDebt(debtId, request);
-            return new ResponseEntity<>(debt, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid debt request: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to update debt: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Debt debt = debtService.updateDebt(debtId, request);
+        return new ResponseEntity<>(debt, HttpStatus.OK);
     }
 
     @DeleteMapping("/{debtId}")
     public ResponseEntity<?> deleteDebt(@PathVariable Long debtId) {
-        try {
-            debtService.deleteDebt(debtId);
-            return new ResponseEntity<>("Debt deleted successfully", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Debt not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to delete debt: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        debtService.deleteDebt(debtId);
+        return new ResponseEntity<>("Debt deleted successfully", HttpStatus.OK);
     }
 
     @GetMapping("/creditor/{creditorId}")
     public ResponseEntity<?> getDebtsForCreditor(@PathVariable Long creditorId) {
-        try {
-            List<Debt> debts = debtService.getDebtsForCreditor(creditorId);
-            return new ResponseEntity<>(debts, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Creditor not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to retrieve debts for creditor: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<Debt> debts = debtService.getDebtsForCreditor(creditorId);
+        return new ResponseEntity<>(debts, HttpStatus.OK);
     }
 
     @GetMapping("/borrower/{borrowerId}")
     public ResponseEntity<?> getDebtsForBorrower(@PathVariable Long borrowerId) {
-        try {
-            List<Debt> debts = debtService.getDebtsForBorrower(borrowerId);
-            return new ResponseEntity<>(debts, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Borrower not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to retrieve debts for borrower: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<Debt> debts = debtService.getDebtsForBorrower(borrowerId);
+        return new ResponseEntity<>(debts, HttpStatus.OK);
     }
 
     @PatchMapping("/{debtId}/calculate")
     public ResponseEntity<?> calculateDebt(@PathVariable Long debtId) {
-        try {
-            debtService.calculateDebtTotals(debtId);
-            return new ResponseEntity<>("Debt totals calculated", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Debt not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to calculate debt totals: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        debtService.calculateDebtTotals(debtId);
+        return new ResponseEntity<>("Debt totals calculated", HttpStatus.OK);
     }
 
     @PatchMapping("/{debtId}/close")
     public ResponseEntity<?> closeDebt(@PathVariable Long debtId) {
-        try {
-            debtService.markAsPaid(debtId);
-            return new ResponseEntity<>("Debt marked as paid", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Debt not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to mark debt as paid: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        debtService.markAsPaid(debtId);
+        return new ResponseEntity<>("Debt marked as paid", HttpStatus.OK);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

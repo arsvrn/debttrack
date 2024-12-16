@@ -1,4 +1,3 @@
-// File: com.debttrack.platform.util.JwtUtil.java
 package com.debttrack.platfrom.utils;
 
 import io.jsonwebtoken.*;
@@ -12,7 +11,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final long EXPIRATION_TIME = 86400000; // 1 day
+    private final long EXPIRATION_TIME = 86400000;
 
     public String generateToken(String username) {
         return Jwts.builder()

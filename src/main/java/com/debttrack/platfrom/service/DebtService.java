@@ -30,15 +30,16 @@ public class DebtService {
         User borrower = userRepository.findById(request.getBorrowerId())
                 .orElseThrow(() -> new RuntimeException("Borrower not found"));
 
-        Debt debt = new Debt();
-        debt.setCreditor(creditor);
-        debt.setBorrower(borrower);
-        debt.setAmount(request.getAmount());
-        debt.setInterestRate(request.getInterestRate());
-        debt.setDueDate(request.getDueDate());
-        debt.setNote(request.getNote());
-        debt.setStatus(DebtStatus.ACTIVE);
-        debt.setPenaltyAmount(request.getPenaltyAmount());
+        Debt debt = Debt.builder()
+                .creditor(creditor)
+                .borrower(borrower)
+                .amount(request.getAmount())
+                .interestRate(request.getInterestRate())
+                .dueDate(request.getDueDate())
+                .note(request.getNote())
+                .status(DebtStatus.ACTIVE)
+                .penaltyAmount(request.getPenaltyAmount())
+                .build();
         calcTotals(debt);
         return debtRepository.save(debt);
     }
@@ -98,5 +99,9 @@ public class DebtService {
                 .orElseThrow(() -> new RuntimeException("Debt not found"));
         debt.setStatus(DebtStatus.CLOSED);
         debtRepository.save(debt);
+    }
+
+    public List<Debt> findAll() {
+        return debtRepository.findAll();
     }
 }

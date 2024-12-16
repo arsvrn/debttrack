@@ -29,7 +29,6 @@ public class DebtRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        // Создание и сохранение кредитора
         creditor = new User();
         creditor.setEmail("creditor@example.com");
         creditor.setName("Creditor");
@@ -37,7 +36,6 @@ public class DebtRepositoryTest {
         creditor.setRole(com.debttrack.platfrom.enums.Role.USER);
         creditor = userRepository.save(creditor);
 
-        // Создание и сохранение заемщика
         borrower = new User();
         borrower.setEmail("borrower@example.com");
         borrower.setName("Borrower");
@@ -45,7 +43,6 @@ public class DebtRepositoryTest {
         borrower.setRole(com.debttrack.platfrom.enums.Role.USER);
         borrower = userRepository.save(borrower);
 
-        // Создание долгов
         Debt debt1 = new Debt();
         debt1.setCreditor(creditor);
         debt1.setBorrower(borrower);

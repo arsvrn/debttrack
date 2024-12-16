@@ -19,19 +19,17 @@ public class NotificationService {
 
     public void sendNotification(Notification notification) {
         try {
-            // Пример отправки email
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(notification.getUser().getEmail());
             message.setSubject("Напоминание о долге");
             message.setText(notification.getMessage());
             mailSender.send(message);
 
-            // Обновить статус уведомления
             notification.setStatus(NotificationStatus.SENT);
             notification.setSentAt(LocalDateTime.now());
             notificationRepository.save(notification);
         } catch (Exception e) {
-            e.printStackTrace(); // Логировать ошибки
+            e.printStackTrace();
         }
     }
 

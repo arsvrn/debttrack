@@ -1,4 +1,3 @@
-// File: com.debttrack.platform.controller.AuthController.java
 package com.debttrack.platfrom.controller;
 
 import com.debttrack.platfrom.model.JwtResponse;

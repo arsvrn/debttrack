@@ -18,49 +18,35 @@ public class GroupController {
 
     @PostMapping
     public ResponseEntity<?> createGroup(@RequestParam String name, @RequestParam Long adminId) {
-        try {
-            Group group = groupService.createGroup(name, adminId);
-            return new ResponseEntity<>(group, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to create group", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Group group = groupService.createGroup(name, adminId);
+        return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
     @PostMapping("/{groupId}/members")
     public ResponseEntity<?> addMember(@PathVariable Long groupId, @RequestParam Long userId) {
-        try {
-            groupService.addUserToGroup(groupId, userId);
-            return new ResponseEntity<>("User added to group", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to add user to group", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        groupService.addUserToGroup(groupId, userId);
+        return new ResponseEntity<>("User added to group", HttpStatus.OK);
     }
 
     @DeleteMapping("/{groupId}/members")
     public ResponseEntity<?> removeMember(@PathVariable Long groupId, @RequestParam Long userId) {
-        try {
-            groupService.removeUserFromGroup(groupId, userId);
-            return new ResponseEntity<>("User removed from group", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to remove user from group", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        groupService.removeUserFromGroup(groupId, userId);
+        return new ResponseEntity<>("User removed from group", HttpStatus.OK);
     }
 
     @GetMapping("/{groupId}/members")
     public ResponseEntity<?> getMembers(@PathVariable Long groupId) {
-        try {
-            List<User> members = groupService.getGroupMembers(groupId);
-            return new ResponseEntity<>(members, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Group not found", HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to retrieve group members", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<User> members = groupService.getGroupMembers(groupId);
+        return new ResponseEntity<>(members, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return new ResponseEntity<>("An error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

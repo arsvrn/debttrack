@@ -16,26 +16,24 @@ public class UserController {
     @PutMapping("/{userId}/profile")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateProfile(@PathVariable Long userId, @RequestParam String name, @RequestParam String email) {
-        try {
-            userService.updateProfile(userId, name, email);
-            return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to update profile", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        userService.updateProfile(userId, name, email);
+        return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
     }
 
     @PutMapping("/{userId}/notifications")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateNotificationSettings(@PathVariable Long userId, @RequestParam boolean enableNotifications) {
-        try {
-            userService.updateNotificationSettings(userId, enableNotifications);
-            return new ResponseEntity<>("Notification settings updated successfully", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to update notification settings", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        userService.updateNotificationSettings(userId, enableNotifications);
+        return new ResponseEntity<>("Notification settings updated successfully", HttpStatus.OK);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>("Invalid input parameters: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

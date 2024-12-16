@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
+    public final String ENCOD = "utf-8";
     private final JavaMailSender mailSender;
 
     public EmailService(JavaMailSender mailSender) {
@@ -18,7 +19,7 @@ public class EmailService {
     public void sendEmail(String to, String body) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, ENCOD);
             helper.setText(body, true);
             helper.setTo(to);
             helper.setSubject("Confirm your email");

@@ -25,13 +25,14 @@ public class DebtSharingService {
 
         double sharePerMember = totalAmount / members.size();
         for (User member : members) {
-            Debt debt = new Debt();
-            debt.setCreditor(null); // Если коллективный долг, кредитор может быть null
-            debt.setBorrower(member);
-            debt.setAmount(sharePerMember);
-            debt.setInterestRate(interestRate);
-            debt.setDueDate(dueDate);
-            debt.setStatus(DebtStatus.ACTIVE);
+            Debt debt = Debt.builder()
+                    .creditor(null)
+                    .borrower(member)
+                    .amount(sharePerMember)
+                    .interestRate(interestRate)
+                    .dueDate(dueDate)
+                    .status(DebtStatus.ACTIVE)
+                    .build();
             debtRepository.save(debt);
         }
     }
@@ -43,13 +44,14 @@ public class DebtSharingService {
             Double percentage = userPercentages.getOrDefault(member.getId(), 0.0);
             double memberShare = totalAmount * (percentage / 100);
 
-            Debt debt = new Debt();
-            debt.setCreditor(null);
-            debt.setBorrower(member);
-            debt.setAmount(memberShare);
-            debt.setInterestRate(interestRate);
-            debt.setDueDate(dueDate);
-            debt.setStatus(DebtStatus.ACTIVE);
+            Debt debt = Debt.builder()
+                    .creditor(null)
+                    .borrower(member)
+                    .amount(memberShare)
+                    .interestRate(interestRate)
+                    .dueDate(dueDate)
+                    .status(DebtStatus.ACTIVE)
+                    .build();
             debtRepository.save(debt);
         }
     }

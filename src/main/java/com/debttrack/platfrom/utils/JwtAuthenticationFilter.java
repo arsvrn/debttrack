@@ -1,4 +1,3 @@
-// File: com.debttrack.platform.util.JwtAuthenticationFilter.java
 package com.debttrack.platfrom.utils;
 
 import com.debttrack.platfrom.service.CustomUserDetailsService;
@@ -33,20 +32,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        // Проверяем, есть ли токен в заголовке Authorization
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7); // Убираем "Bearer "
-        userEmail = jwtUtil.extractUsername(jwt); // Получаем email из токена
+        jwt = authHeader.substring(7);
+        userEmail = jwtUtil.extractUsername(jwt);
 
-        // Проверяем, аутентифицирован ли пользователь
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+       if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var userDetails = customUserDetailsService.loadUserByUsername(userEmail);
 
-            // Проверяем, действителен ли токен
             if (jwtUtil.validateToken(jwt)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(

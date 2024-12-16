@@ -18,27 +18,25 @@ public class DebtSharingController {
     @PostMapping("/distribute")
     public ResponseEntity<?> distributeDebt(@RequestParam Long groupId, @RequestParam Double totalAmount,
                                             @RequestParam Double interestRate, @RequestParam LocalDate dueDate) {
-        try {
-            debtSharingService.distributeDebt(groupId, totalAmount, interestRate, dueDate);
-            return new ResponseEntity<>("Debt distributed evenly among group members", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to distribute debt", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        debtSharingService.distributeDebt(groupId, totalAmount, interestRate, dueDate);
+        return new ResponseEntity<>("Debt distributed evenly among group members", HttpStatus.OK);
     }
 
     @PostMapping("/distribute-by-percentage")
     public ResponseEntity<?> distributeDebtByPercentage(@RequestParam Long groupId, @RequestBody Map<Long, Double> userPercentages,
                                                         @RequestParam Double totalAmount, @RequestParam Double interestRate,
                                                         @RequestParam LocalDate dueDate) {
-        try {
-            debtSharingService.distributeDebtByPercentage(groupId, userPercentages, totalAmount, interestRate, dueDate);
-            return new ResponseEntity<>("Debt distributed by percentage among group members", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid input parameters", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to distribute debt by percentage", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        debtSharingService.distributeDebtByPercentage(groupId, userPercentages, totalAmount, interestRate, dueDate);
+        return new ResponseEntity<>("Debt distributed by percentage among group members", HttpStatus.OK);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>("Invalid input parameters: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

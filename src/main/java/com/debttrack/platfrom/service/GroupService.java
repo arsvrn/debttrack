@@ -21,9 +21,10 @@ public class GroupService {
     public Group createGroup(String name, Long adminId) {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
-        Group group = new Group();
-        group.setName(name);
-        group.setAdmin(admin);
+        Group group = Group.builder()
+                .name(name)
+                .admin(admin)
+                .build();
         return groupRepository.save(group);
     }
 
@@ -37,9 +38,11 @@ public class GroupService {
             throw new RuntimeException("User already in group");
         }
 
-        GroupUser groupUser = new GroupUser();
-        groupUser.setGroup(group);
-        groupUser.setUser(user);
+        GroupUser groupUser = GroupUser.builder()
+                .group(group)
+                .user(user)
+                .build();
+
         groupUserRepository.save(groupUser);
     }
 

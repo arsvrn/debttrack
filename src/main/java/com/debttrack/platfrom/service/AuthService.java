@@ -1,10 +1,11 @@
-// File: com.debttrack.platform.service.AuthService.java
 package com.debttrack.platfrom.service;
 
 import com.debttrack.platfrom.model.ConfirmationToken;
 import com.debttrack.platfrom.model.RegisterRequest;
 import com.debttrack.platfrom.model.User;
 import com.debttrack.platfrom.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +13,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class AuthService {
 
+    public final int LIFE_TIME_REG_TOKEN = 15;
+    @Value("${reg.conf.url}")
+    private String regConfURL;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ConfirmationTokenService confirmationTokenService;
@@ -28,11 +33,12 @@ public class AuthService {
     }
 
     public void register(RegisterRequest request) {
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setEnabled(false);
+        User user = User.builder()
+                .email(request.getEmail())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .enabled(false)
+                .build();
 
         userRepository.save(user);
 
@@ -40,14 +46,14 @@ public class AuthService {
         ConfirmationToken confirmationToken = new ConfirmationToken(
                 token,
                 LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
+                LocalDateTime.now().plusMinutes(LIFE_TIME_REG_TOKEN),
                 user
         );
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        String confirmationLink = "http://localhost:8080/api/auth/confirm?token=" + token;
-        System.out.println(confirmationLink);
+        String confirmationLink = regConfURL + token;
+        log.debug(confirmationLink);
         emailService.sendEmail(user.getEmail(), buildEmail(user.getName(), confirmationLink));
     }
 

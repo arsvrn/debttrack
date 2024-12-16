@@ -8,6 +8,7 @@ import com.debttrack.platfrom.repository.DebtRepository;
 import com.debttrack.platfrom.repository.NotificationRepository;
 import com.debttrack.platfrom.service.DebtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,20 +18,22 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DebtScheduler {
-    private final DebtRepository debtRepository;
     private final DebtService debtService;
     private final NotificationRepository notificationRepository;
-
-    @Scheduled(cron = "0 0 8 * * ?") // Каждый день в 8 утра
+    @Scheduled(cron = "${scheduling.cron.checkUpcomingDebts}")
     public void checkUpcomingDebts() {
-        List<Debt> debts = debtRepository.findAll();
+        List<Debt> debts = debtService.findAll();
         for (Debt debt : debts) {
-            if (debt.getStatus() == DebtStatus.ACTIVE &&
-                    debt.getDueDate().isEqual(LocalDate.now().plusDays(3)) &&
-                    debt.getBorrower().isNotificationsEnabled()) {
+            if (checkDebts(debt)) {
                 createNotification(debt);
             }
         }
+    }
+
+    private boolean checkDebts(Debt debt) {
+        return debt.getStatus() == DebtStatus.ACTIVE &&
+                debt.getDueDate().isEqual(LocalDate.now().plusDays(3)) &&
+                debt.getBorrower().isNotificationsEnabled();
     }
 
     private void createNotification(Debt debt) {
@@ -39,24 +42,20 @@ public class DebtScheduler {
                 debt.getAmount(), debt.getDueDate().toString()
         );
 
-        Notification notification = new Notification();
-        notification.setUser(debt.getBorrower());
-        notification.setMessage(message);
-        notification.setStatus(NotificationStatus.PENDING);
+        Notification notification = Notification.builder()
+                .user(debt.getBorrower())
+                .message(message)
+                .status(NotificationStatus.PENDING)
+                .build();
 
         notificationRepository.save(notification);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Каждый день в полночь
+    @Scheduled(cron = "${scheduling.cron.updateOverduePenalties}")
     public void updateOverduePenalties() {
-        List<Debt> activeDebts = debtRepository.findAll().stream()
+        debtService.findAll().stream()
                 .filter(debt -> debt.getStatus() == DebtStatus.ACTIVE)
-                .toList();
-
-        for (Debt debt : activeDebts) {
-            if (debt.getDueDate().isBefore(LocalDate.now())) {
-                debtService.calculateDebtTotals(debt.getId());
-            }
-        }
+                .filter(debt -> debt.getDueDate().isBefore(LocalDate.now()))
+                .forEach(debt -> debtService.calculateDebtTotals(debt.getId()));
     }
 }

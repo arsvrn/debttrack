@@ -31,7 +31,7 @@ public class GroupRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        // Создание и сохранение администратора
+
         admin = new User();
         admin.setEmail("admin@example.com");
         admin.setName("Admin");
@@ -39,15 +39,13 @@ public class GroupRepositoryTest {
         admin.setRole(com.debttrack.platfrom.enums.Role.USER);
         admin = userRepository.save(admin);
 
-        // Создание и сохранение другого администратора
-        anotherAdmin = new User();
+         anotherAdmin = new User();
         anotherAdmin.setEmail("anotheradmin@example.com");
         anotherAdmin.setName("Another Admin");
         anotherAdmin.setPasswordHash("hashed_password");
         anotherAdmin.setRole(com.debttrack.platfrom.enums.Role.USER);
         anotherAdmin = userRepository.save(anotherAdmin);
 
-        // Создание групп
         Group group1 = new Group();
         group1.setName("Group 1");
         group1.setAdmin(admin);

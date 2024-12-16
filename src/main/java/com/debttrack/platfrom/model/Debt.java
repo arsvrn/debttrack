@@ -3,6 +3,7 @@ package com.debttrack.platfrom.model;
 import com.debttrack.platfrom.enums.DebtStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Debt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,10 +29,10 @@ public class Debt {
     private User borrower;
 
     @Column(nullable = false)
-    private Double amount; // Основная сумма
+    private Double amount;
 
     @Column(nullable = false)
-    private Double interestRate; // Процентная ставка
+    private Double interestRate;
 
     @Column(nullable = false)
     private LocalDate dueDate;
@@ -42,9 +44,9 @@ public class Debt {
     private DebtStatus status = DebtStatus.ACTIVE;
 
     @Column(nullable = false)
-    private Double totalAmount; // Итоговая сумма (с процентами)
+    private Double totalAmount;
 
     @Column(nullable = false)
-    private Double penaltyAmount = 0.0; // Штраф за просрочку
+    private Double penaltyAmount = 0.0;
 }
 

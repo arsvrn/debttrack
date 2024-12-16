@@ -60,7 +60,6 @@ public class ValidationUtilsTest {
         request.setInterestRate(5.0);
         request.setDueDate(LocalDate.now().plusDays(1));
 
-        // No exception should be thrown
         ValidationUtils.validateDebtRequest(request);
     }
 }
